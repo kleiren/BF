@@ -25,7 +25,6 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
@@ -40,7 +39,7 @@ public class MainActivity extends Activity {
 
     final int RECIEVE_MESSAGE = 1;		// Status  for Handler
     private BluetoothAdapter btAdapter = null;
-    private BluetoothSocket btSocket = null;
+    protected BluetoothSocket btSocket = null;
     //private BF_ComUtil Bluetooth = null;
     public BFDeviceData bluefin = new BFDeviceData ();
 
@@ -62,9 +61,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-
-
-
 
         btnOn = (Button) findViewById(R.id.btnOn);					// button LED ON
         btnOff = (Button) findViewById(R.id.btnOff);				// button LED OFF
@@ -151,20 +147,11 @@ public class MainActivity extends Activity {
 
                 //  final BF_ComUtil Bluetooth = new BF_ComUtil(btSocket);
                 //  String a = "" +Bluetooth.isIsInit();
-                final  BF_ComUtil Bluetooth = new BF_ComUtil(btSocket);
-                byte[] byteArray = new byte[] {87, 79, 87, 46, 46, 46};
 
-                String value = null;
-                try {
-                    value = new String(Bluetooth.BF_Echo(byteArray), "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                Activity Echo = new Echo(btSocket);
+                Intent activity2 = new Intent(MainActivity.this, Echo.class);
 
-
-                Toast.makeText(getBaseContext(), value, Toast.LENGTH_SHORT).show();
-
+                startActivityForResult(activity2, 0);
 
             }
         });

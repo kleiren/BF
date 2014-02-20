@@ -4,5 +4,11 @@
     <string name="app_name">Controller2</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_echo">Echo</string>
+    <string name="DeviceResponse">Device Response</string>
+    <string name="EchoResponse"></string>
+    <string name="EchoButton">Send Request</string>
+    <string name="EchoData">Introduce data to send</string>
+    <string name="title_activity_get_image">GetImage</string>
 
 </resources>
