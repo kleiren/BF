@@ -28,11 +28,10 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class MainActivity extends Activity {
     private static final String TAG = "bluetooth2";
 
-    Button btnOn, btnOff, Echo;
+    Button btnOn, btnOff, Echo, btnsocket;
     TextView txtArduino;
     Handler h;
     ImageView imagen;
@@ -46,7 +45,7 @@ public class MainActivity extends Activity {
 
     private StringBuilder sb = new StringBuilder();
 
-    private ConnectedThread mConnectedThread;
+    //private ConnectedThread mConnectedThread;
 
     // SPP UUID service
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -62,6 +61,8 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
 
+
+        btnsocket = (Button) findViewById(R.id.btnsocket);
         btnOn = (Button) findViewById(R.id.btnOn);					// button LED ON
         btnOff = (Button) findViewById(R.id.btnOff);				// button LED OFF
         Echo = (Button) findViewById(R.id.Echo);				// button LED OFF
@@ -70,33 +71,59 @@ public class MainActivity extends Activity {
 
         txtArduino = (TextView) findViewById(R.id.txtArduino);		// for display the received data from the Arduino
 
-   /* h = new Handler() {
-    	public void handleMessage(android.os.Message msg) {
-    		switch (msg.what) {
-            case RECIEVE_MESSAGE:													// if receive massage
-            	byte[] readBuf = (byte[]) msg.obj;
-            	String strIncom = new String(readBuf, 0, msg.arg1);					// create string from bytes array
-            	sb.append(strIncom);												// append string
-            	int endOfLineIndex = sb.indexOf("\r\n");							// determine the end-of-line
-            	if (endOfLineIndex > 0) { 											// if end-of-line,
-            		String sbprint = sb.substring(0, endOfLineIndex);				// extract string
-                    sb.delete(0, sb.length());										// and clear
-                	txtArduino.setText("Data from Arduino: " + sbprint); 	        // update TextView
-                	btnOff.setEnabled(true);
-                	btnOn.setEnabled(true);
-                }
-            	//Log.d(TAG, "...String:"+ sb.toString() +  "Byte:" + msg.arg1 + "...");
-            	break;
-    		}
-        };
-	};*/
+
 
         btAdapter = BluetoothAdapter.getDefaultAdapter();		// get Bluetooth adapter
         checkBTState();
 
 
+        btnsocket.setOnClickListener(new OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+            public void onClick(View v) {
+
+                // Set up a pointer to the remote node using it's address.
+                BluetoothDevice device = btAdapter.getRemoteDevice(address);
+
+                // Two things are needed to make a connection:
+                //   A MAC address, which we got above.
+                //   A Service ID or UUID.  In this case we are using the
+                //     UUID for SPP.
+
+                try {
+                    btSocket = createBluetoothSocket(device);
+                } catch (IOException e) {
+                    errorExit("Fatal Error", "In onResume() and socket create failed: " + e.getMessage() + ".");
+                }
+
+
+                // Discovery is resource intensive.  Make sure it isn't going on
+                // when you attempt to connect and pass your message.
+                btAdapter.cancelDiscovery();
+
+                // Establish the connection.  This will block until it connects.
+                Log.d(TAG, "...Connecting...");
+                try {
+                    btSocket.connect();
+                    Log.d(TAG, "....Connection ok...");
+                } catch (IOException e) {
+                    try {
+                        btSocket.close();
+                    } catch (IOException e2) {
+                        errorExit("Fatal Error", "In onResume() and unable to close socket during connecture" + e2.getMessage() + ".");
+                    }
+                }
+
+                // Create a data stream so we can talk to server.
+                Log.d(TAG, "...Create Socket...");
+
+            }
+        });
+        
+
+
 
         btnOn.setOnClickListener(new OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
             public void onClick(View v) {
 
                 //mConnectedThread.write("1");	// Send "1" via Bluetooth
@@ -148,7 +175,7 @@ public class MainActivity extends Activity {
                 //  final BF_ComUtil Bluetooth = new BF_ComUtil(btSocket);
                 //  String a = "" +Bluetooth.isIsInit();
 
-                Activity Echo = new Echo(btSocket);
+                //Activity Echo = new Echo(btSocket);
                 Intent activity2 = new Intent(MainActivity.this, Echo.class);
 
                 startActivityForResult(activity2, 0);
@@ -175,49 +202,8 @@ public class MainActivity extends Activity {
 
         Log.d(TAG, "...onResume - try connect...");
 
-        // Set up a pointer to the remote node using it's address.
-        BluetoothDevice device = btAdapter.getRemoteDevice(address);
-
-        // Two things are needed to make a connection:
-        //   A MAC address, which we got above.
-        //   A Service ID or UUID.  In this case we are using the
-        //     UUID for SPP.
-
-        try {
-            btSocket = createBluetoothSocket(device);
-        } catch (IOException e) {
-            errorExit("Fatal Error", "In onResume() and socket create failed: " + e.getMessage() + ".");
-        }
-
-    /*try {
-      btSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
-    } catch (IOException e) {
-      errorExit("Fatal Error", "In onResume() and socket create failed: " + e.getMessage() + ".");
-    }*/
-
-        // Discovery is resource intensive.  Make sure it isn't going on
-        // when you attempt to connect and pass your message.
-        btAdapter.cancelDiscovery();
-
-        // Establish the connection.  This will block until it connects.
-        Log.d(TAG, "...Connecting...");
-        try {
-            btSocket.connect();
-            Log.d(TAG, "....Connection ok...");
-        } catch (IOException e) {
-            try {
-                btSocket.close();
-            } catch (IOException e2) {
-                errorExit("Fatal Error", "In onResume() and unable to close socket during connection failure" + e2.getMessage() + ".");
-            }
-        }
-
-        // Create a data stream so we can talk to server.
-        Log.d(TAG, "...Create Socket...");
 
 
-        //mConnectedThread = new ConnectedThread(btSocket);
-        //mConnectedThread.start();
     }
 
     @Override
@@ -254,7 +240,7 @@ public class MainActivity extends Activity {
         finish();
     }
 
-    private class ConnectedThread extends Thread {
+ /*   private class ConnectedThread extends Thread {
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
 
@@ -273,32 +259,7 @@ public class MainActivity extends Activity {
             mmOutStream = tmpOut;
         }
 
-	  /*  public void run() {
-	        byte[] buffer = new byte[256];  // buffer store for the stream
-	        int bytes; // bytes returned from read()
 
-	        // Keep listening to the InputStream until an exception occurs
-	        while (true) {
-	        	try {
-	                // Read from the InputStream
-	                bytes = mmInStream.read(buffer);		// Get number of bytes and message in "buffer"
-                    h.obtainMessage(RECIEVE_MESSAGE, bytes, -1, buffer).sendToTarget();		// Send to message queue Handler
-	            } catch (IOException e) {
-	                break;
-	            }
-	        }
-	    }*/
-
-	    /* Call this from the main activity to send data to the remote device */
-	   /* public void write(String message) {
-	    	Log.d(TAG, "...Data to send: " + message + "...");
-	    	byte[] msgBuffer = message.getBytes();
-	    	try {
-	            mmOutStream.write(msgBuffer);
-	        } catch (IOException e) {
-	            Log.d(TAG, "...Error data send: " + e.getMessage() + "...");
-	          }
-	    }*/
-    }
+    }*/
 
 }
