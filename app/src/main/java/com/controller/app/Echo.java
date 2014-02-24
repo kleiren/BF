@@ -15,12 +15,12 @@ import java.io.UnsupportedEncodingException;
 
 public class Echo extends ActionBarActivity {
 
-    public Echo(BluetoothSocket btSocket) {
-        this.btSocket = btSocket;
+    public Echo(BF_ComUtil Bluetooth) {
+        this.Bluetooth = Bluetooth;
 
     }
 
-    private BluetoothSocket btSocket;
+    public BF_ComUtil Bluetooth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +34,7 @@ public class Echo extends ActionBarActivity {
         }
 
 
-        BF_ComUtil Bluetooth = new BF_ComUtil(btSocket);
+        //BF_ComUtil Bluetooth = new BF_ComUtil(btSocket);
         byte[] byteArray = new byte[] {87, 79, 87, 46, 46, 46};
 
         String value = null;

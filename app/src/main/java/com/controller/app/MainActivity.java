@@ -42,6 +42,11 @@ public class MainActivity extends Activity {
     //private BF_ComUtil Bluetooth = null;
     public BFDeviceData bluefin = new BFDeviceData ();
 
+    BF_ComUtil Bluetooth=null;
+    BFDeviceData Bluefin=null;
+
+
+
 
     private StringBuilder sb = new StringBuilder();
 
@@ -115,6 +120,10 @@ public class MainActivity extends Activity {
 
                 // Create a data stream so we can talk to server.
                 Log.d(TAG, "...Create Socket...");
+                 Bluetooth=BluetoothSingleton.getBluetoothManager(btSocket).getBluetooth();
+                 Bluefin=BluetoothSingleton.getBluetoothManager(btSocket).getBluefin();
+
+
 
             }
         });
@@ -138,19 +147,19 @@ public class MainActivity extends Activity {
                 //	mConnectedThread.write("0");	// Send "0" via Bluetooth
                 //Toast.makeText(getBaseContext(), "Turn off LED", Toast.LENGTH_SHORT).show();
 
-                final  BF_ComUtil Bluetooth = new BF_ComUtil(btSocket);
+
 
                 String a = "" +Bluetooth.isIsInit();
                 Toast.makeText(getBaseContext(), a, Toast.LENGTH_SHORT).show();
 
-                Bluetooth.BF_GetInfo(bluefin);
+                Bluetooth.BF_GetInfo(Bluefin);
 
-                txtArduino.setText(" " + bluefin.getDeviceName());
+                txtArduino.setText(" " + Bluefin.getDeviceName());
 
-               Bluetooth.BF_SetSessionKey(Bluetooth.mKey, bluefin);
+               Bluetooth.BF_SetSessionKey(Bluetooth.mKey, Bluefin);
                 MediaStore.Images img;
                 byte[] byteArray = null ;
-                byteArray=Bluetooth.BF_GetFPImg(bluefin);
+                byteArray=Bluetooth.BF_GetFPImg(Bluefin);
                 int[] raw = new int[36864];
 
 
@@ -167,18 +176,12 @@ public class MainActivity extends Activity {
 
         Echo.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                //	btnOff.setEnabled(false);
-                //	mConnectedThread.write("0");	// Send "0" via Bluetooth
-                //Toast.makeText(getBaseContext(), "Turn off LED", Toast.LENGTH_SHORT).show();
 
 
-                //  final BF_ComUtil Bluetooth = new BF_ComUtil(btSocket);
-                //  String a = "" +Bluetooth.isIsInit();
+                Activity Echo = new Echo(Bluetooth);
+                Intent ac = new Intent(MainActivity.this, Echo.class);
 
-                //Activity Echo = new Echo(btSocket);
-                Intent activity2 = new Intent(MainActivity.this, Echo.class);
-
-                startActivityForResult(activity2, 0);
+                startActivityForResult(ac, 0);
 
             }
         });
@@ -207,8 +210,8 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onDestroy() {
+        super.onDestroy();
 
         Log.d(TAG, "...In onPause()...");
 
