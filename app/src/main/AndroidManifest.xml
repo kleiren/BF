@@ -32,6 +32,10 @@
             android:name="com.controller.app.GetImage"
             android:label="@string/title_activity_get_image" >
         </activity>
+        <activity
+            android:name="com.controller.app.Status"
+            android:label="@string/title_activity_status" >
+        </activity>
     </application>
 
 </manifest>

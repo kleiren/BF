@@ -12,54 +12,65 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Create Socket"
-            android:id="@+id/btnsocket"
+            android:id="@+id/btnCreateSock"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
 
             android:layout_gravity="center_horizontal" />
 
-        <Button
-            android:id="@+id/btnOff"
+    <Button
+            android:id="@+id/btnCheckSock"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Check Socket"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+
+        />
+
+    <Button
+            android:id="@+id/btnCheckCon"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Check Conection"
-            android:layout_above="@+id/btnOn"
+            android:layout_above="@+id/btnCheckSock"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal" />
 
-        <Button
-            android:id="@+id/btnOn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="check socket"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Set Secure Connection"
+        android:id="@+id/btnSec" />
 
-            android:layout_gravity="center_horizontal" />
-
-        <Button
-            android:id="@+id/Echo"
+    <Button
+            android:id="@+id/btnEcho"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Send Echo"
-            android:layout_above="@+id/btnOff"
+            android:layout_above="@+id/btnCheckCon"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal" />
 
-        <TextView
-            android:id="@+id/txtArduino"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:text="" />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Get Status"
+        android:id="@+id/btnStat" />
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/imageView"
-            android:layout_below="@+id/txtArduino"
-            android:layout_centerHorizontal="true" />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Get Image"
+        android:id="@+id/getImage"
+        android:layout_gravity="center_horizontal" />
 
-    </LinearLayout>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Shut Down Device"
+        android:id="@+id/btnOFF"
+        android:layout_gravity="center_horizontal" />
+
+</LinearLayout>
 

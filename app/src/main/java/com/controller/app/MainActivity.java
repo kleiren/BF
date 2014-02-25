@@ -31,16 +31,12 @@ import java.util.UUID;
 public class MainActivity extends Activity {
     private static final String TAG = "bluetooth2";
 
-    Button btnOn, btnOff, Echo, btnsocket;
-    TextView txtArduino;
-    Handler h;
-    ImageView imagen;
+    Button btnCreateSock, btnCheckSock, btnEcho, btnCheckCon, getImage, btnOFF, btnSec, btnStat;
 
-    final int RECIEVE_MESSAGE = 1;		// Status  for Handler
+
     private BluetoothAdapter btAdapter = null;
     protected BluetoothSocket btSocket = null;
-    //private BF_ComUtil Bluetooth = null;
-    public BFDeviceData bluefin = new BFDeviceData ();
+
 
     BF_ComUtil Bluetooth=null;
     BFDeviceData Bluefin=null;
@@ -67,14 +63,17 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
 
-        btnsocket = (Button) findViewById(R.id.btnsocket);
-        btnOn = (Button) findViewById(R.id.btnOn);					// button LED ON
-        btnOff = (Button) findViewById(R.id.btnOff);				// button LED OFF
-        Echo = (Button) findViewById(R.id.Echo);				// button LED OFF
-        imagen = (ImageView) findViewById(R.id.imageView);
+        btnCreateSock = (Button) findViewById(R.id.btnCreateSock);
+        btnCheckSock = (Button) findViewById(R.id.btnCheckSock);
+        btnCheckCon = (Button) findViewById(R.id.btnCheckCon);
+        getImage = (Button) findViewById(R.id.getImage);
+        btnEcho = (Button) findViewById(R.id.btnEcho);
+        btnSec = (Button) findViewById(R.id.btnSec);
+        btnStat = (Button) findViewById(R.id.btnStat);
+        btnOFF = (Button) findViewById((R.id.btnOFF));
 
 
-        txtArduino = (TextView) findViewById(R.id.txtArduino);		// for display the received data from the Arduino
+
 
 
 
@@ -82,7 +81,7 @@ public class MainActivity extends Activity {
         checkBTState();
 
 
-        btnsocket.setOnClickListener(new OnClickListener() {
+        btnCreateSock.setOnClickListener(new OnClickListener() {
             @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
             public void onClick(View v) {
 
@@ -110,6 +109,9 @@ public class MainActivity extends Activity {
                 try {
                     btSocket.connect();
                     Log.d(TAG, "....Connection ok...");
+
+                    Bluetooth=BluetoothSingleton.getBluetoothManager(btSocket).getBluetooth();
+                    Bluefin=BluetoothSingleton.getBluetoothManager(btSocket).getBluefin();
                 } catch (IOException e) {
                     try {
                         btSocket.close();
@@ -120,8 +122,7 @@ public class MainActivity extends Activity {
 
                 // Create a data stream so we can talk to server.
                 Log.d(TAG, "...Create Socket...");
-                 Bluetooth=BluetoothSingleton.getBluetoothManager(btSocket).getBluetooth();
-                 Bluefin=BluetoothSingleton.getBluetoothManager(btSocket).getBluefin();
+
 
 
 
@@ -131,57 +132,82 @@ public class MainActivity extends Activity {
 
 
 
-        btnOn.setOnClickListener(new OnClickListener() {
+        btnCheckSock.setOnClickListener(new OnClickListener() { //Check if the socket is connected
             @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
             public void onClick(View v) {
 
-                //mConnectedThread.write("1");	// Send "1" via Bluetooth
-                String a = "" +btSocket.isConnected();
+                String a = "Socket: " + btSocket.isConnected();
                 Toast.makeText(getBaseContext(), a, Toast.LENGTH_SHORT).show();
             }
         });
 
-        btnOff.setOnClickListener(new OnClickListener() {
+        btnCheckCon.setOnClickListener(new OnClickListener() { //Check if the device is initialized
             public void onClick(View v) {
-                //	btnOff.setEnabled(false);
-                //	mConnectedThread.write("0");	// Send "0" via Bluetooth
-                //Toast.makeText(getBaseContext(), "Turn off LED", Toast.LENGTH_SHORT).show();
 
 
 
-                String a = "" +Bluetooth.isIsInit();
+                String a = "Connection: " + Bluetooth.isIsInit();
                 Toast.makeText(getBaseContext(), a, Toast.LENGTH_SHORT).show();
-
-                Bluetooth.BF_GetInfo(Bluefin);
-
-                txtArduino.setText(" " + Bluefin.getDeviceName());
-
-               Bluetooth.BF_SetSessionKey(Bluetooth.mKey, Bluefin);
-                MediaStore.Images img;
-                byte[] byteArray = null ;
-                byteArray=Bluetooth.BF_GetFPImg(Bluefin);
-                int[] raw = new int[36864];
-
-
-
-                Bitmap bmpImage = Bitmap.createBitmap( 240, 360, Bitmap.Config.ARGB_8888);
-                bmpImage = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-                imagen.setImageBitmap(bmpImage);
-
-
 
 
             }
         });
 
-        Echo.setOnClickListener(new OnClickListener() {
+        btnEcho.setOnClickListener(new OnClickListener() { //Starts echo activity
             public void onClick(View v) {
 
 
-                Activity Echo = new Echo(Bluetooth);
+
                 Intent ac = new Intent(MainActivity.this, Echo.class);
 
                 startActivityForResult(ac, 0);
+
+            }
+        });
+
+
+        btnSec.setOnClickListener(new OnClickListener() { //Creates a secure connection with the device (getting mKey directly from BF_comutil, thats wrong)
+
+            public void onClick(View v) {
+
+                Bluetooth.BF_SetSessionKey(Bluetooth.mKey, Bluefin);
+
+                Toast.makeText(getBaseContext(), "Secure Connection: "+ Bluetooth.isSecure(), Toast.LENGTH_SHORT).show();
+
+
+
+            }
+        });
+
+        btnStat.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+
+
+
+                Intent ac = new Intent(MainActivity.this, Status.class);
+
+                startActivityForResult(ac, 0);
+
+            }
+        });
+
+        getImage.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+
+
+
+                Intent ac = new Intent(MainActivity.this, GetImage.class);
+
+                startActivityForResult(ac, 0);
+
+            }
+        });
+
+        btnOFF.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+
+                Bluetooth.BF_PowerOff(Bluefin);
+
 
             }
         });
@@ -243,26 +269,6 @@ public class MainActivity extends Activity {
         finish();
     }
 
- /*   private class ConnectedThread extends Thread {
-        private final InputStream mmInStream;
-        private final OutputStream mmOutStream;
 
-        public ConnectedThread(BluetoothSocket socket) {
-            InputStream tmpIn = null;
-            OutputStream tmpOut = null;
-
-            // Get the input and output streams, using temp objects because
-            // member streams are final
-            try {
-                tmpIn = socket.getInputStream();
-                tmpOut = socket.getOutputStream();
-            } catch (IOException e) { }
-
-            mmInStream = tmpIn;
-            mmOutStream = tmpOut;
-        }
-
-
-    }*/
 
 }

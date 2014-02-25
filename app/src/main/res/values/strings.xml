@@ -10,5 +10,6 @@
     <string name="EchoButton">Send Request</string>
     <string name="EchoData">Introduce data to send</string>
     <string name="title_activity_get_image">GetImage</string>
+    <string name="title_activity_status">Status</string>
 
 </resources>
